@@ -1,122 +1,214 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// Import useEffect and useState hooks from React
+import { useEffect, useState } from "react"
 
-function App() {
-  const [count, setCount] = useState(0)
+// Import CSS file for styling
+import "./App.css"
 
+// Array of sample food items
+const items = [
+  "Apple",
+  "Banana",
+  "Orange",
+  "Mango",
+  "Strawberry",
+  "Blueberry",
+  "Watermelon",
+  "Pineapple",
+  "Grapes",
+  "Peach",
+  "Coffee",
+  "Milk",
+  "Bread",
+  "Tuna",
+  "Spinach"
+]
+
+// Main App component
+export default function App() {
+
+  // State for normal search input text
+  const [naiveSearch, setNaiveSearch] = useState("")
+
+  // State for debounced search input text
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  // Stores results for normal search
+  const [naiveResults, setNaiveResults] = useState([])
+
+  // Stores results for debounced search
+  const [debouncedResults, setDebouncedResults] = useState([])
+
+  // Counts how many times the normal search runs
+  const [naiveCalls, setNaiveCalls] = useState(0)
+
+  // Counts how many times the debounced search runs
+  const [debouncedCalls, setDebouncedCalls] = useState(0)
+
+  // Function that simulates an API search
+  function fakeApiSearch(searchText) {
+
+    // Filter items array
+    // Keep only items that include the search text
+    return items.filter((item) =>
+
+      // Convert both strings to lowercase
+      // Makes search case-insensitive
+      item.toLowerCase().includes(searchText.toLowerCase())
+    )
+  }
+
+  // Runs every time user types in naive search input
+  function handleNaiveChange(event) {
+
+    // Get current input value
+    const value = event.target.value
+
+    // Update naive search state
+    setNaiveSearch(value)
+
+    // Increase API call count by 1
+    setNaiveCalls((prev) => prev + 1)
+
+    // Immediately run search and update results
+    setNaiveResults(fakeApiSearch(value))
+  }
+
+  // useEffect runs whenever debouncedSearch changes
+  useEffect(() => {
+
+    // If input is empty
+    if (debouncedSearch === "") {
+
+      // Clear search results
+      setDebouncedResults([])
+
+      // Stop the rest of the effect
+      return
+    }
+
+    // Start a timer
+    // Wait 500 milliseconds before searching
+    const timer = setTimeout(() => {
+
+      // Increase debounced API call count
+      setDebouncedCalls((prev) => prev + 1)
+
+      // Run search after delay
+      setDebouncedResults(fakeApiSearch(debouncedSearch))
+
+    }, 500)
+
+    // Cleanup function
+    // Runs before the next effect
+    return () => {
+
+      // Cancel previous timer
+      // Prevents unnecessary searches
+      clearTimeout(timer)
+    }
+
+    // Dependency array
+    // Effect runs every time debouncedSearch changes
+  }, [debouncedSearch])
+
+  // JSX UI
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+    // Main container
+    <main className="app">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
+      {/* Main title */}
+      <h1>Debounced Search Demo</h1>
+
+      {/* Description text */}
+      <p>
+        Compare a normal search that fires on every key press with a debounced
+        search that waits until the user stops typing.
+      </p>
+
+      {/* Container holding both search sections */}
+      <div className="demo-container">
+
+        {/* Naive search section */}
+        <section className="card">
+
+          {/* Section title */}
+          <h2>Naive Search</h2>
+
+          {/* Explanation */}
+          <p>Calls the search immediately on every key press.</p>
+
+          {/* Search input */}
+          <input
+
+            // Input type
+            type="text"
+
+            // Placeholder text
+            placeholder="Search food..."
+
+            // Current input value
+            value={naiveSearch}
+
+            // Function runs every time user types
+            onChange={handleNaiveChange}
+          />
+
+          {/* Display number of API calls */}
+          <h3>API Calls: {naiveCalls}</h3>
+
+          {/* Results list */}
           <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+            {/* Loop through results array */}
+            {naiveResults.map((item) => (
+
+              // Render each item
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Debounced search section */}
+        <section className="card">
+
+          {/* Section title */}
+          <h2>Debounced Search</h2>
+
+          {/* Explanation */}
+          <p>Waits 500ms after typing stops before searching.</p>
+
+          {/* Search input */}
+          <input
+
+            // Input type
+            type="text"
+
+            // Placeholder text
+            placeholder="Search food..."
+
+            // Current debounced input value
+            value={debouncedSearch}
+
+            // Update debounced search state when typing
+            onChange={(event) => setDebouncedSearch(event.target.value)}
+          />
+
+          {/* Display debounced API calls */}
+          <h3>API Calls: {debouncedCalls}</h3>
+
+          {/* Results list */}
+          <ul>
+
+            {/* Loop through debounced results */}
+            {debouncedResults.map((item) => (
+
+              // Render each item
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </main>
   )
 }
-
-export default App

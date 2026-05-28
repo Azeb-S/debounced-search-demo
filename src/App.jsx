@@ -118,7 +118,7 @@ export default function App() {
     <main className="app">
 
       {/* Main title */}
-      <h1>Debounced Search Demo</h1>
+      <h1>Debounced Search</h1>
 
       {/* Description text */}
       <p>
